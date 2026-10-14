@@ -8,6 +8,7 @@ import * as service from "@/lib/service";
 import { staffSession, login, logout } from "@/lib/auth";
 import { money, time, dateLabel } from "@/lib/types";
 import type { Bus, Route } from "@/lib/types";
+import { isAllowedRequestOrigin } from "@/lib/request-origin";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 async function handler(req: NextRequest) {
@@ -16,8 +17,13 @@ async function handler(req: NextRequest) {
     const search = req.nextUrl.searchParams;
     const ip = req.headers.get("x-forwarded-for")?.split(",")[0] || "local";
     if (req.method !== "GET") {
-      const origin = req.headers.get("origin");
-      if (origin && origin !== req.nextUrl.origin)
+      if (
+        !isAllowedRequestOrigin(
+          req.headers.get("origin"),
+          req.nextUrl.href,
+          req.headers.get("host"),
+        )
+      )
         throw new service.Fault("Request origin is not allowed.", 403);
     }
     const json = (value: unknown, status = 200) =>

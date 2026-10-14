@@ -84,3 +84,10 @@ See README.md for setup, staff credentials location and the client demonstration
 - Rendered Sinhala and Tamil PDF fixtures with Poppler and visually reviewed them. Replaced the old font shaper to fix its crash on Sinhala independent vowels; regression checks generate PDFs in all three languages.
 - All 17 tests pass. The final production build and TypeScript validation pass. Reviewed the translated staff sign-in; authenticated staff actions were not exercised or changed during UI verification.
 - See `research/LOCALIZATION.md` for catalogue conventions, technical boundaries and the local PDF QA fixture command.
+
+## Local booking origin fix
+
+- Fixed mutation requests being rejected when the browser uses `localhost:3000` but Next constructs its internal URL with the `127.0.0.1:3000` bind address. Origin validation now uses the incoming Host authority and the request protocol, falling back to the request URL only when Host is absent.
+- No wildcard origins, forwarded-host trust, port equivalence or loopback-alias equivalence were added. Foreign origins, different ports/protocols, malformed authorities and opaque origins are rejected. Existing non-browser requests without Origin retain their previous behaviour.
+- Verified the running API returns 200 for matching localhost/127.0.0.1 origins and 403 for a foreign site or another local port. In the browser, selected two seats on Ampara → Matara for 15 October 2026 and reached Passenger details with an active hold. Released the test hold through Back; no booking or passenger record was created.
+- All 20 tests and TypeScript validation pass, including three origin regression tests. The development server remains running.
